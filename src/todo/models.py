@@ -77,7 +77,7 @@ class Comment(BaseEntity, table=True):
 
     @mutation(name="comment_add", description="Add a comment to a todo")
     async def create(
-        cls, todo_id: int, content: str, query_meta: QueryMeta
+        cls, todo_id: int, content: str, query_meta: QueryMeta | None = None
     ) -> "Comment":
         """Add a comment to a todo."""
         from todo.database import async_session
@@ -96,7 +96,8 @@ class Comment(BaseEntity, table=True):
 
             # Re-query with query_meta to load relationships
             stmt = select(cls).where(cls.id == comment.id)
-            stmt = stmt.options(*query_meta.to_options(cls))
+            if query_meta:
+                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return result.first()
 
@@ -157,7 +158,7 @@ class Todo(BaseEntity, table=True):
             return result.first()
 
     @mutation(name="todo_add", description="Add a new todo")
-    async def create(cls, title: str, query_meta: QueryMeta) -> "Todo":
+    async def create(cls, title: str, query_meta: QueryMeta | None = None) -> "Todo":
         """Add a new todo."""
         from todo.database import async_session
 
@@ -169,13 +170,14 @@ class Todo(BaseEntity, table=True):
 
             # Re-query with query_meta to load relationships
             stmt = select(cls).where(cls.id == todo.id)
-            stmt = stmt.options(*query_meta.to_options(cls))
+            if query_meta:
+                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return result.first()
 
     @mutation(name="todo_add_with_comments", description="Add a new todo with comments")
     async def create_with_comments(
-        cls, title: str, query_meta: QueryMeta, comments: list[str] = []
+        cls, title: str, query_meta: QueryMeta | None = None, comments: list[str] = []
     ) -> "Todo":
         """Add a new todo with optional comments."""
         from todo.database import async_session
@@ -195,7 +197,8 @@ class Todo(BaseEntity, table=True):
 
             # Re-query with query_meta to load relationships
             stmt = select(cls).where(cls.id == todo.id)
-            stmt = stmt.options(*query_meta.to_options(cls))
+            if query_meta:
+                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return result.first()
 
@@ -214,7 +217,7 @@ class Todo(BaseEntity, table=True):
             return False
 
     @mutation(name="todo_done", description="Mark a todo as done/undone")
-    async def set_done(cls, id: int, done: bool, query_meta: QueryMeta) -> "Todo":
+    async def set_done(cls, id: int, done: bool, query_meta: QueryMeta | None = None) -> "Todo":
         """Mark a todo as done or undone."""
         from todo.database import async_session
 
@@ -231,6 +234,7 @@ class Todo(BaseEntity, table=True):
 
             # Re-query with query_meta to load relationships
             stmt = select(cls).where(cls.id == todo.id)
-            stmt = stmt.options(*query_meta.to_options(cls))
+            if query_meta:
+                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return result.first()
