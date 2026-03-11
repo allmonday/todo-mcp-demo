@@ -129,15 +129,17 @@ class Todo(BaseEntity, table=True):
         back_populates="todo", cascade_delete=True
     )
 
-    @query(name="todos", description="Get all todos with optional limit")
+    @query(name="todos", description="Get all todos with optional limit and done status filter")
     async def get_all(
-        cls, limit: int = 100, query_meta: QueryMeta | None = None
+        cls, limit: int = 100, done: bool | None = None, query_meta: QueryMeta | None = None
     ) -> list["Todo"]:
-        """Get all todos with optional limit."""
+        """Get all todos with optional limit and done status filter."""
         from todo.database import async_session
 
         async with async_session() as session:
             stmt = select(cls).order_by(cls.created_at.desc()).limit(limit)
+            if done is not None:
+                stmt = stmt.where(cls.done == done)
             if query_meta:
                 stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
