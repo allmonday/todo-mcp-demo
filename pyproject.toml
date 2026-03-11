@@ -1,0 +1,22 @@
+[project]
+name = "todo-mcp"
+version = "0.1.0"
+description = "Todo application with GraphQL and MCP support"
+readme = "README.md"
+requires-python = ">=3.10.4"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "fastapi>=0.135.1",
+    "fastmcp>=3.1.0",
+    "sqlmodel-graphql>=0.5.0",
+    "uvicorn>=0.41.0",
+]
+
+[project.scripts]
+todo-mcp = "todo.mcp_server:main"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/todo"]
