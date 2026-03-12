@@ -22,7 +22,7 @@ def main() -> None:
     asyncio.run(init_db())
 
     mcp = create_mcp_server(
-        apps=[{"name": "todo", "base": BaseEntity, "description": "todo app, app_name: todo, 记住 graphql 查询都是用 under_score 连接的，比如 user_name, 不要用驼峰 UserName"}],
+        apps=[{"name": "todo", "base": BaseEntity, "description": "todo app, app_name: todo"}],
         name="Todo GraphQL MCP Server",
     )
 
