@@ -22,12 +22,12 @@ class Todo(SQLModel, table=True):
     title: str
     done: bool = Field(default=False)
 
-    @query(name="todos")
-    async def get_all(cls, limit: int = 100) -> list["Todo"]:
+    @query
+    async def get_todos(cls, limit: int = 100) -> list["Todo"]:
         ...
 
-    @mutation(name="todo_add")
-    async def create(cls, title: str) -> "Todo":
+    @mutation
+    async def create_todo(cls, title: str) -> "Todo":
         ...
 ```
 
@@ -35,9 +35,9 @@ class Todo(SQLModel, table=True):
 
 | 能力 | 说明 |
 |------|------|
-| **GraphQL Query** | `todos(limit: 100): [Todo]` |
-| **GraphQL Mutation** | `todo_add(title: "xxx"): Todo` |
-| **MCP Tool** | `todos`, `todo_add` 工具供 AI 调用 |
+| **GraphQL Query** | `todoGetTodos(limit: 100): [Todo]` |
+| **GraphQL Mutation** | `todoCreateTodo(title: "xxx"): Todo` |
+| **MCP Tool** | `todoGetTodos`, `todoCreateTodo` 工具供 AI 调用 |
 
 ---
 
@@ -79,22 +79,22 @@ uv run todo-mcp --http
 ### Query
 ```graphql
 query {
-  todos { id title done comments { content } }
-  todo(id: 1) { id title }
-  comments { id content todo_id }
-  comments_by_todo(todoId: 1) { id content }
+  todoGetTodos { id title done comments { content } }
+  todoGetTodo(id: 1) { id title }
+  commentGetComments { id content todo_id }
+  commentGetCommentsByTodo(todoId: 1) { id content }
 }
 ```
 
 ### Mutation
 ```graphql
 mutation {
-  todo_add(title: "New Task") { id title }
-  todo_add_with_comments(title: "Task", comments: ["c1"]) { id }
-  todo_done(id: 1, done: true) { id done }
-  todo_delete(id: 1)
-  comment_add(todoId: 1, content: "note") { id }
-  comment_delete(id: 1)
+  todoCreateTodo(title: "New Task") { id title }
+  todoCreateTodoWithComments(title: "Task", comments: ["c1"]) { id }
+  todoSetTodoDone(id: 1, done: true) { id done }
+  todoDeleteTodo(id: 1)
+  commentCreateComment(todoId: 1, content: "note") { id }
+  commentDeleteComment(id: 1)
 }
 ```
 
@@ -123,10 +123,10 @@ mutation {
 
 | 工具 | 说明 |
 |------|------|
-| `todos` / `todo` | 查询 Todo |
-| `todo_add` / `todo_done` / `todo_delete` | Todo 增删改 |
-| `comments` / `comment` / `comments_by_todo` | 查询评论 |
-| `comment_add` / `comment_delete` | 评论增删 |
+| `todoGetTodos` / `todoGetTodo` | 查询 Todo |
+| `todoCreateTodo` / `todoSetTodoDone` / `todoDeleteTodo` | Todo 增删改 |
+| `commentGetComments` / `commentGetComment` / `commentGetCommentsByTodo` | 查询评论 |
+| `commentCreateComment` / `commentDeleteComment` | 评论增删 |
 
 ---
 

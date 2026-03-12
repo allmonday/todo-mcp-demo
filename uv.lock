@@ -1358,7 +1358,7 @@ wheels = [
 
 [[package]]
 name = "sqlmodel-graphql"
-version = "0.8.0"
+version = "0.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
@@ -1367,9 +1367,9 @@ dependencies = [
     { name = "sqlmodel" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/25/74/1582dad4bfa86509bbe6f57266cbe126db2819523fe67b81d032663496b0/sqlmodel_graphql-0.8.0.tar.gz", hash = "sha256:63dbcbb57eddbf00bbb6e4a90d5d89af7aa17e27bf7b777105159bf8cdf19ee3", size = 143794, upload-time = "2026-03-12T01:32:20.233Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/85/d8cddaa4521ffc99b4bc00a4acb32ab37bb536f7cd4e85a35bd659302de3/sqlmodel_graphql-0.8.1.tar.gz", hash = "sha256:b52caa787c5a71c73501caa612f1ca28e0d256c5a7afb66e628ff1275e460857", size = 144333, upload-time = "2026-03-12T01:53:28.903Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/f0/6cdc2f49e7e2a7a049445b63f4883444ac0b78020be50135cb654366a266/sqlmodel_graphql-0.8.0-py3-none-any.whl", hash = "sha256:dbe17d5177fa9c36a28fe011ae0989638124558697f1e9e7c83528187ab49f3c", size = 57964, upload-time = "2026-03-12T01:32:21.279Z" },
+    { url = "https://files.pythonhosted.org/packages/46/8a/4c8c4293a87f9fc8190efe655a9e15f843c3affbb2ab8ce92de6e00150ed/sqlmodel_graphql-0.8.1-py3-none-any.whl", hash = "sha256:e6d85cf55ca3ce3ced38c9d600e35d6a9e883ed94a9ae44943ef6a9dfa6189c1", size = 58141, upload-time = "2026-03-12T01:53:27.573Z" },
 ]
 
 [[package]]
@@ -1417,7 +1417,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.135.1" },
     { name = "fastmcp", specifier = ">=3.1.0" },
     { name = "greenlet", specifier = ">=3.3.2" },
-    { name = "sqlmodel-graphql", specifier = "==0.8.0" },
+    { name = "sqlmodel-graphql", specifier = "==0.8.1" },
     { name = "uvicorn", specifier = ">=0.41.0" },
 ]
 
