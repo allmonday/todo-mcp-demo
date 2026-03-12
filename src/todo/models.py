@@ -28,8 +28,8 @@ class Comment(BaseEntity, table=True):
     # Relationship: Comment belongs to Todo
     todo: Optional["Todo"] = Relationship(back_populates="comments")
 
-    @query(name="comments", description="Get all comments with optional limit")
-    async def get_all(
+    @query
+    async def get_comments(
         cls, limit: int = 100, query_meta: QueryMeta | None = None
     ) -> list["Comment"]:
         """Get all comments with optional limit."""
@@ -42,8 +42,8 @@ class Comment(BaseEntity, table=True):
             result = await session.exec(stmt)
             return list(result.all())
 
-    @query(name="comment", description="Get a comment by ID")
-    async def get_by_id(
+    @query
+    async def get_comment(
         cls, id: int, query_meta: QueryMeta | None = None
     ) -> Optional["Comment"]:
         """Get a comment by ID."""
@@ -56,8 +56,8 @@ class Comment(BaseEntity, table=True):
             result = await session.exec(stmt)
             return result.first()
 
-    @query(name="comments_by_todo", description="Get comments by todo ID")
-    async def get_by_todo(
+    @query
+    async def get_comments_by_todo(
         cls, todo_id: int, limit: int = 100, query_meta: QueryMeta | None = None
     ) -> list["Comment"]:
         """Get comments by todo ID."""
@@ -75,8 +75,8 @@ class Comment(BaseEntity, table=True):
             result = await session.exec(stmt)
             return list(result.all())
 
-    @mutation(name="comment_add", description="Add a comment to a todo")
-    async def create(
+    @mutation
+    async def create_comment(
         cls, todo_id: int, content: str, query_meta: QueryMeta | None = None
     ) -> "Comment":
         """Add a comment to a todo."""
@@ -101,8 +101,8 @@ class Comment(BaseEntity, table=True):
             result = await session.exec(stmt)
             return result.first()
 
-    @mutation(name="comment_delete", description="Delete a comment")
-    async def delete(cls, id: int) -> bool:
+    @mutation
+    async def delete_comment(cls, id: int) -> bool:
         """Delete a comment by ID."""
         from todo.database import async_session
 
@@ -129,8 +129,8 @@ class Todo(BaseEntity, table=True):
         back_populates="todo", cascade_delete=True
     )
 
-    @query(name="todos", description="Get all todos with optional limit and done status filter")
-    async def get_all(
+    @query
+    async def get_todos(
         cls, limit: int = 100, done: bool | None = None, query_meta: QueryMeta | None = None
     ) -> list["Todo"]:
         """Get all todos with optional limit and done status filter."""
@@ -145,8 +145,8 @@ class Todo(BaseEntity, table=True):
             result = await session.exec(stmt)
             return list(result.all())
 
-    @query(name="todo", description="Get a todo by ID")
-    async def get_by_id(
+    @query
+    async def get_todo(
         cls, id: int, query_meta: QueryMeta | None = None
     ) -> Optional["Todo"]:
         """Get a todo by ID."""
@@ -159,8 +159,8 @@ class Todo(BaseEntity, table=True):
             result = await session.exec(stmt)
             return result.first()
 
-    @mutation(name="todo_add", description="Add a new todo")
-    async def create(cls, title: str, query_meta: QueryMeta | None = None) -> "Todo":
+    @mutation
+    async def create_todo(cls, title: str, query_meta: QueryMeta | None = None) -> "Todo":
         """Add a new todo."""
         from todo.database import async_session
 
@@ -177,8 +177,8 @@ class Todo(BaseEntity, table=True):
             result = await session.exec(stmt)
             return result.first()
 
-    @mutation(name="todo_add_with_comments", description="Add a new todo with comments")
-    async def create_with_comments(
+    @mutation
+    async def create_todo_with_comments(
         cls, title: str, query_meta: QueryMeta | None = None, comments: list[str] = []
     ) -> "Todo":
         """Add a new todo with optional comments."""
@@ -204,8 +204,8 @@ class Todo(BaseEntity, table=True):
             result = await session.exec(stmt)
             return result.first()
 
-    @mutation(name="todo_delete", description="Delete a todo")
-    async def delete(cls, id: int) -> bool:
+    @mutation
+    async def delete_todo(cls, id: int) -> bool:
         """Delete a todo by ID (cascades to comments)."""
         from todo.database import async_session
 
@@ -218,8 +218,8 @@ class Todo(BaseEntity, table=True):
                 return True
             return False
 
-    @mutation(name="todo_done", description="Mark a todo as done/undone")
-    async def set_done(cls, id: int, done: bool, query_meta: QueryMeta | None = None) -> "Todo":
+    @mutation
+    async def set_todo_done(cls, id: int, done: bool, query_meta: QueryMeta | None = None) -> "Todo":
         """Mark a todo as done or undone."""
         from todo.database import async_session
 
