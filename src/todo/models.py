@@ -1,14 +1,11 @@
 """SQLModel entity definitions for the todo application."""
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from sqlmodel import Field, Relationship, SQLModel, select
 
-from sqlmodel_graphql import QueryMeta, mutation, query
-
-if TYPE_CHECKING:
-    pass
+from sqlmodel_graphql import mutation, query
 
 
 class BaseEntity(SQLModel):
@@ -28,37 +25,30 @@ class Comment(BaseEntity, table=True):
     # Relationship: Comment belongs to Todo
     todo: Optional["Todo"] = Relationship(back_populates="comments")
 
+
     @query
-    async def get_comments(
-        cls, limit: int = 100, query_meta: QueryMeta | None = None
-    ) -> list["Comment"]:
+    async def get_comments(cls, limit: int = 100) -> list["Comment"]:
         """Get all comments with optional limit."""
         from todo.database import async_session
 
         async with async_session() as session:
             stmt = select(cls).order_by(cls.created_at.desc()).limit(limit)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return list(result.all())
 
     @query
-    async def get_comment(
-        cls, id: int, query_meta: QueryMeta | None = None
-    ) -> Optional["Comment"]:
+    async def get_comment(cls, id: int) -> Optional["Comment"]:
         """Get a comment by ID."""
         from todo.database import async_session
 
         async with async_session() as session:
             stmt = select(cls).where(cls.id == id)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return result.first()
 
     @query
     async def get_comments_by_todo(
-        cls, todo_id: int, limit: int = 100, query_meta: QueryMeta | None = None
+        cls, todo_id: int, limit: int = 100
     ) -> list["Comment"]:
         """Get comments by todo ID."""
         from todo.database import async_session
@@ -70,15 +60,11 @@ class Comment(BaseEntity, table=True):
                 .order_by(cls.created_at.desc())
                 .limit(limit)
             )
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return list(result.all())
 
     @mutation
-    async def create_comment(
-        cls, todo_id: int, content: str, query_meta: QueryMeta | None = None
-    ) -> "Comment":
+    async def create_comment(cls, todo_id: int, content: str) -> "Comment":
         """Add a comment to a todo."""
         from todo.database import async_session
 
@@ -93,13 +79,7 @@ class Comment(BaseEntity, table=True):
             session.add(comment)
             await session.commit()
             await session.refresh(comment)
-
-            # Re-query with query_meta to load relationships
-            stmt = select(cls).where(cls.id == comment.id)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
-            result = await session.exec(stmt)
-            return result.first()
+            return comment
 
     @mutation
     async def delete_comment(cls, id: int) -> bool:
@@ -126,12 +106,14 @@ class Todo(BaseEntity, table=True):
 
     # Relationship: Todo has many comments
     comments: list["Comment"] = Relationship(
-        back_populates="todo", cascade_delete=True
+        back_populates="todo",
+        cascade_delete=True,
+        sa_relationship_kwargs={"order_by": "Comment.created_at.desc()"},
     )
 
     @query
     async def get_todos(
-        cls, limit: int = 100, done: bool | None = None, query_meta: QueryMeta | None = None
+        cls, limit: int = 100, done: bool | None = None
     ) -> list["Todo"]:
         """Get all todos with optional limit and done status filter."""
         from todo.database import async_session
@@ -140,27 +122,21 @@ class Todo(BaseEntity, table=True):
             stmt = select(cls).order_by(cls.created_at.desc()).limit(limit)
             if done is not None:
                 stmt = stmt.where(cls.done == done)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return list(result.all())
 
     @query
-    async def get_todo(
-        cls, id: int, query_meta: QueryMeta | None = None
-    ) -> Optional["Todo"]:
+    async def get_todo(cls, id: int) -> Optional["Todo"]:
         """Get a todo by ID."""
         from todo.database import async_session
 
         async with async_session() as session:
             stmt = select(cls).where(cls.id == id)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
             result = await session.exec(stmt)
             return result.first()
 
     @mutation
-    async def create_todo(cls, title: str, query_meta: QueryMeta | None = None) -> "Todo":
+    async def create_todo(cls, title: str) -> "Todo":
         """Add a new todo."""
         from todo.database import async_session
 
@@ -169,17 +145,11 @@ class Todo(BaseEntity, table=True):
             session.add(todo)
             await session.commit()
             await session.refresh(todo)
-
-            # Re-query with query_meta to load relationships
-            stmt = select(cls).where(cls.id == todo.id)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
-            result = await session.exec(stmt)
-            return result.first()
+            return todo
 
     @mutation
     async def create_todo_with_comments(
-        cls, title: str, query_meta: QueryMeta | None = None, comments: list[str] = []
+        cls, title: str, comments: list[str] = []
     ) -> "Todo":
         """Add a new todo with optional comments."""
         from todo.database import async_session
@@ -196,13 +166,8 @@ class Todo(BaseEntity, table=True):
                 comment = Comment(todo_id=todo.id, content=content)
                 session.add(comment)
             await session.commit()
-
-            # Re-query with query_meta to load relationships
-            stmt = select(cls).where(cls.id == todo.id)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
-            result = await session.exec(stmt)
-            return result.first()
+            await session.refresh(todo)
+            return todo
 
     @mutation
     async def delete_todo(cls, id: int) -> bool:
@@ -219,7 +184,7 @@ class Todo(BaseEntity, table=True):
             return False
 
     @mutation
-    async def set_todo_done(cls, id: int, done: bool, query_meta: QueryMeta | None = None) -> "Todo":
+    async def set_todo_done(cls, id: int, done: bool) -> "Todo":
         """Mark a todo as done or undone."""
         from todo.database import async_session
 
@@ -233,10 +198,4 @@ class Todo(BaseEntity, table=True):
             session.add(todo)
             await session.commit()
             await session.refresh(todo)
-
-            # Re-query with query_meta to load relationships
-            stmt = select(cls).where(cls.id == todo.id)
-            if query_meta:
-                stmt = stmt.options(*query_meta.to_options(cls))
-            result = await session.exec(stmt)
-            return result.first()
+            return todo

@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, PlainTextResponse
 from pydantic import BaseModel
 
 from sqlmodel_graphql import GraphQLHandler
-from todo.database import init_db
+from todo.database import async_session, init_db
 from todo.models import BaseEntity
 
 # GraphiQL HTML (loaded via CDN)
@@ -161,7 +161,7 @@ class GraphQLRequest(BaseModel):
 
 
 # Create GraphQL handler
-handler = GraphQLHandler(base=BaseEntity)
+handler = GraphQLHandler(base=BaseEntity, session_factory=async_session)
 
 
 @asynccontextmanager
